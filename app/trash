@@ -1,0 +1,67 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <form [formGroup]="project" (ngSubmit)="onSaveProject()">
+        <div class="form-group">
+          <label for="name">My Project</label>
+          <input
+            type="text"
+            id="projectName"
+            class="form-control"
+            formControlName="projectName"
+          />
+          <div class="help-block">
+            <span
+              *ngIf="
+                project.get('projectName').touched &&
+                project.get('projectName').hasError('required')
+              "
+              >This Field is required</span
+            >
+            <span
+              *ngIf="
+                project.get('projectName').touched &&
+                project.get('projectName').hasError('invalidProjectName')
+              "
+              >Name cannot be Test</span
+            >
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="text"
+            id="email"
+            class="form-control"
+            formControlName="email"
+          />
+          <div class="help-block">
+            <span
+              *ngIf="
+                project.get('email').touched &&
+                project.get('email').hasError('required')
+              "
+              >This Field is required</span
+            >
+            <span
+              *ngIf="
+                project.get('email').touched &&
+                project.get('email').hasError('email')
+              "
+              >Invalid Email</span
+            >
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="projectStatus">Project Status</label>
+          <select id="status" class="form-control" formControlName="status">
+            <option *ngFor="let state of status" [value]="state">
+              {{ state }}
+            </option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Project</button>
+      </form>
+    </div>
+  </div>
+</div>

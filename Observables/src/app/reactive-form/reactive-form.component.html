@@ -58,9 +58,13 @@
               </div>
               <div class="form-group">
                 Gender
-                <div class="radio" *ngFor="let gender of genders">
-                  <label for="gender">
+                <div
+                  class="form-check"
+                  *ngFor="let gender of genders; let i = index"
+                >
+                  <label class="form-check-label">
                     <input
+                      class="form-check-input"
                       type="radio"
                       value="{{ gender }}"
                       formControlName="gender"
@@ -78,13 +82,15 @@
                 </div>
               </div>
               <div class="form-group">
-                <label for="dob">DOB</label>
-                <input
-                  type="date"
-                  id="dateOfBirth"
-                  class="form-control"
-                  formControlName="dob"
-                />
+                <label for="dob"
+                  >DOB
+                  <input
+                    type="date"
+                    id="dateOfBirth"
+                    class="form-control"
+                    formControlName="dob"
+                  />
+                </label>
                 <span
                   *ngIf="
                     regForm.get('userDataOne.dob').touched &&
@@ -140,11 +146,11 @@
                       *ngFor="let hobby of hobbies; let i = index"
                       formArrayName="hobbies"
                     >
-                      <label class="mx-2">
+                      <label class="mx-3 form-check-label">
                         <input
                           type="checkbox"
                           id="hobbies"
-                          class="form-control"
+                          class="form-check-input"
                           value="{{ hobby.name }}"
                           (change)="getSelectedHobby($event)"
                           [checked]="hobby.selected"
@@ -152,28 +158,76 @@
                         {{ hobby.name }}
                       </label>
                     </div>
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      style="padding: 0px 8px 0px 8px;"
+                      (click)="addHobbies()"
+                    >
+                      +
+                    </button>
                   </div>
                 </label>
+                <div *ngIf="add == 1">
+                  <input type="text" formControlName="newHobby" />
+                  <button
+                    [disabled]="!regForm.get('userDataTwo.newHobby').valid"
+                    type="button"
+                    class="mx-2 btn btn-success"
+                    (click)="pushHobby()"
+                  >
+                    add
+                  </button>
+                  <button
+                    type="button"
+                    class="mx-2 btn btn-danger"
+                    (click)="onCancel()"
+                  >
+                    cancel
+                  </button>
+                </div>
               </div>
               <div class="form-group">
                 <label for="Phone">Mobile Number</label>
                 <input
                   type="tel"
                   id="number"
-                  class="form-control"
-                  formControlName="phoneNum"
-                  placeholder="123-456-7890"
+                  class="square-div"
+                  formControlName="phoneNum1"
+                  maxlength="3"
+                />
+                <input
+                  type="tel"
+                  id="number"
+                  class="square-div"
+                  formControlName="phoneNum2"
+                  maxlength="3"
+                />
+                <input
+                  type="tel"
+                  id="number"
+                  class="square-div"
+                  formControlName="phoneNum3"
+                  maxlength="4"
                 />
                 <span
-                  *ngIf="regForm.get('userDataTwo.phoneNum').touched"
+                  *ngIf="
+                    regForm.get('userDataTwo.phoneNum1').touched ||
+                    regForm.get('userDataTwo.phoneNum2').touched ||
+                    regForm.get('userDataTwo.phoneNum3').touched
+                  "
                   class="help-block"
                   >{{
-                    regForm.get("userDataTwo.phoneNum").hasError("pattern")
+                    regForm.get("userDataTwo.phoneNum1").hasError("pattern") ||
+                    regForm.get("userDataTwo.phoneNum2").hasError("pattern") ||
+                    regForm.get("userDataTwo.phoneNum3").hasError("pattern")
                       ? "Number should be in format:-123-456-7890"
                       : ""
                   }}
                   {{
-                    regForm.get("userDataTwo.phoneNum").hasError("pattern")
+                    regForm.get("userDataTwo.phoneNum1").hasError("required") ||
+                    regForm.get("userDataTwo.phoneNum2").hasError("required") ||
+                    regForm.get("userDataTwo.phoneNum3").hasError("required")
                       ? "Number is Required"
                       : ""
                   }}</span
@@ -310,7 +364,7 @@
                       }}"
                     />
                   </div>
-                  <div>
+                  <div *ngIf="i != 0">
                     <button
                       style="margin: -4px 0px 0px 8px"
                       type="button"

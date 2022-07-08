@@ -9,3 +9,7 @@ input.ng-invalid.ng-touched {
 ::ng-deep .mat-horizontal-stepper-header{
   pointer-events: none !important;
 }
+.square-div {
+  width: 60px;
+  margin: 5px;
+}

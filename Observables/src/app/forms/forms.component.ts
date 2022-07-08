@@ -47,9 +47,12 @@ export class FormsComponent implements OnInit {
       number: '',
     },
   ];
+  phoneNum1 = '';
+  phoneNum2 = '';
+  phoneNum3 = '';
 
   user: object = {
-    userid:this.userDataService.userData.length+1,
+    userid: this.userDataService.userData.length + 1,
     name: '',
     email: '',
     gender: '',
@@ -60,8 +63,9 @@ export class FormsComponent implements OnInit {
     qualification: [],
     profession: '',
     description: '',
-    contacts: [] ,
+    contacts: [],
   };
+  add: number;
 
   constructor(
     private userDataService: UserService,
@@ -92,7 +96,10 @@ export class FormsComponent implements OnInit {
       this.user['email'] = newUserData['email'];
       this.user['gender'] = newUserData['gender'];
       this.user['dob'] = newUserData['dob'];
-      this.user['phoneNum'] = newUserData['phoneNum'];
+      const phone = newUserData['phoneNum'].split('-');
+      this.phoneNum1 = phone[0];
+      this.phoneNum2 = phone[1];
+      this.phoneNum3 = phone[2];
       this.user['qualification'] = newUserData['qualification'];
       this.user['profession'] = newUserData['profession'];
       this.user['description'] = newUserData['description'];
@@ -111,20 +118,43 @@ export class FormsComponent implements OnInit {
   }
 
   fetchSelectedHobby(selectedHobby: string[]) {
-    for (let e of selectedHobby) {
-      for (let f of this.hobbies) {
-        if (e == f['name']) {
-          f['selected'] = true;
+    const hobbyName = [];
+    for (let hobby of selectedHobby) {
+      for (let staticHobby of this.hobbies) {
+        hobbyName.push(staticHobby['name']);
+        if (hobby == staticHobby['name']) {
+          staticHobby['selected'] = true;
         }
       }
+      const uniqueHobbyName = [...new Set(hobbyName)];
+      if (uniqueHobbyName.includes(hobby) == false) {
+        this.hobbies.push({
+          id: this.hobbies.length + 1,
+          name: hobby,
+          selected: true,
+        });
+      }
     }
+  }
+
+  addHobbies() {
+    this.add = 1;
+  }
+
+  pushHobby(name: string) {
+    this.hobbies.push({
+      id: this.hobbies.length + 1,
+      name: name,
+      selected: false,
+    });
+    this.add = 0;
   }
 
   onAddContacts() {
     this.contact.push({
       id: this.contact.length + 1,
-      contactName: '',
-      contactNumber: '',
+      name: '',
+      number: '',
     });
   }
 
@@ -132,13 +162,15 @@ export class FormsComponent implements OnInit {
     this.contact.splice(index, 1);
   }
   onSubmit() {
+    this.user['phoneNum'] =
+      this.phoneNum1 + '-' + this.phoneNum2 + '-' + this.phoneNum3;
     this.user['hobbies'] = this.getSelectedHobby();
-    this.user['contacts'] = this.contact
+    this.user['contacts'] = this.contact;
     if (!this.editMode) {
       this.user['userid'] = this.user['userid']++;
       this.userDataService.addData(this.user);
     } else {
-      this.userDataService.updateData(this.id, this.user)
+      this.userDataService.updateData(this.id, this.user);
     }
     this.router.navigate(['/home'], { relativeTo: this.route });
   }

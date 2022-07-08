@@ -1,16 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import {
-  FormArray,
-  FormControl,
-  FormGroup,
-  UntypedFormArray,
-  Validators,
-} from '@angular/forms';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
-import { Subscription } from 'rxjs';
 import { UserService } from '../user.service';
-import { CustomValidations } from './custom-validations';
 
 @Component({
   selector: 'app-reactive-form',
@@ -22,7 +14,6 @@ export class ReactiveFormComponent implements OnInit {
   editMode: boolean = false;
   id: number;
   selectedHobby: any = [];
-  subscription: Subscription;
   dropdownList: string[] = [];
   dropdownSettings: IDropdownSettings = {};
   genders: string[] = ['male', 'female'];
@@ -66,11 +57,13 @@ export class ReactiveFormComponent implements OnInit {
     description: '',
     contacts: [],
   };
+  add: number;
 
   constructor(
     private userDataService: UserService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -91,12 +84,12 @@ export class ReactiveFormComponent implements OnInit {
     if (this.editMode) {
       const newUserData = this.userDataService.getUserData(this.id);
       const selectedHobby: string[] = newUserData['hobbies'];
+      const phone = newUserData['phoneNum'].split('-');
       this.fetchSelectedHobby(selectedHobby);
       this.user['name'] = newUserData['name'];
       this.user['email'] = newUserData['email'];
       this.user['gender'] = newUserData['gender'];
       this.user['dob'] = newUserData['dob'];
-      this.user['phoneNum'] = newUserData['phoneNum'];
       this.user['qualification'] = newUserData['qualification'];
       this.user['profession'] = newUserData['profession'];
       this.user['description'] = newUserData['description'];
@@ -124,8 +117,20 @@ export class ReactiveFormComponent implements OnInit {
           dob: new FormControl(this.user['dob'], Validators.required),
         }),
         userDataTwo: new FormGroup({
+          phoneNum1: new FormControl(phone[0], [
+            Validators.required,
+            Validators.pattern('[0-9]{3}'),
+          ]),
+          phoneNum2: new FormControl(phone[1], [
+            Validators.required,
+            Validators.pattern('[0-9]{3}'),
+          ]),
+          phoneNum3: new FormControl(phone[2], [
+            Validators.required,
+            Validators.pattern('[0-9]{4}'),
+          ]),
           hobbies: new FormArray(this.selectedHobby, Validators.required),
-          phoneNum: new FormControl(this.user['phoneNum'], Validators.required),
+          newHobby: new FormControl('example'),
         }),
         userDataThree: new FormGroup({
           qualification: new FormControl(
@@ -156,10 +161,19 @@ export class ReactiveFormComponent implements OnInit {
         }),
         userDataTwo: new FormGroup({
           dp: new FormControl(null, Validators.required),
-          hobbies: new FormArray([], Validators.required),
-          phoneNum: new FormControl(this.user['phoneNum'], [
+          hobbies: new FormArray(this.user['hobbies'], Validators.required),
+          newHobby: new FormControl(null),
+          phoneNum1: new FormControl('', [
             Validators.required,
-            Validators.pattern('[0-9]{3}-[0-9]{3}-[0-9]{4}'),
+            Validators.pattern('[0-9]{3}'),
+          ]),
+          phoneNum2: new FormControl('', [
+            Validators.required,
+            Validators.pattern('[0-9]{3}'),
+          ]),
+          phoneNum3: new FormControl('', [
+            Validators.required,
+            Validators.pattern('[0-9]{4}'),
           ]),
         }),
         userDataThree: new FormGroup({
@@ -218,12 +232,23 @@ export class ReactiveFormComponent implements OnInit {
   }
 
   fetchSelectedHobby(selectedHobby: string[]) {
-    for (let e of selectedHobby) {
-      for (let f of this.hobbies) {
-        if (e == f['name']) {
-          f['selected'] = true;
-          this.selectedHobby.push(new FormControl(f['name']));
+    const hobbyName = [];
+    for (let hobby of selectedHobby) {
+      for (let staticHobby of this.hobbies) {
+        hobbyName.push(staticHobby['name']);
+        if (hobby == staticHobby['name']) {
+          staticHobby['selected'] = true;
+          this.selectedHobby.push(new FormControl(staticHobby['name']));
         }
+      }
+      const uniqueHobbyName = [...new Set(hobbyName)];
+      if (uniqueHobbyName.includes(hobby) == false) {
+        this.selectedHobby.push(new FormControl(hobby));
+        this.hobbies.push({
+          id: this.hobbies.length + 1,
+          name: hobby,
+          selected: true,
+        });
       }
     }
   }
@@ -249,6 +274,30 @@ export class ReactiveFormComponent implements OnInit {
     (<FormArray>this.regForm.get('userDataThree.contacts')).removeAt(index);
   }
 
+  addHobbies() {
+    this.add = 1;
+    this.regForm.get('userDataTwo.newHobby').setValidators(Validators.required);
+    this.cdRef.detectChanges();
+  }
+
+  pushHobby() {
+    this.hobbies.push({
+      id: this.hobbies.length + 1,
+      name: this.regForm.value.userDataTwo.newHobby,
+      selected: false,
+    });
+    this.add = 0;
+    this.regForm
+      .get('userDataTwo.newHobby')
+      .removeValidators(Validators.required);
+  }
+  onCancel() {
+    this.add = 0;
+    this.regForm
+      .get('userDataTwo.newHobby')
+      .removeValidators(Validators.required);
+  }
+
   onSubmit() {
     this.user['name'] = this.regForm.value.userDataOne.name;
     this.user['email'] = this.regForm.value.userDataOne.email;
@@ -256,7 +305,12 @@ export class ReactiveFormComponent implements OnInit {
     this.user['dob'] = this.regForm.value.userDataOne.dob;
     this.user['dp'] = this.regForm.value.userDataTwo.dp;
     this.user['hobbies'] = this.regForm.value.userDataTwo.hobbies;
-    this.user['phoneNum'] = this.regForm.value.userDataTwo.phoneNum;
+    this.user['phoneNum'] =
+      this.regForm.value.userDataTwo.phoneNum1 +
+      '-' +
+      this.regForm.value.userDataTwo.phoneNum2 +
+      '-' +
+      this.regForm.value.userDataTwo.phoneNum3;
     this.user['qualification'] = this.regForm.value.userDataThree.qualification;
     this.user['profession'] = this.regForm.value.userDataThree.profession;
     this.user['description'] = this.regForm.value.userDataThree.description;

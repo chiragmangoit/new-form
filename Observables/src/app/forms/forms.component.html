@@ -57,11 +57,15 @@
               </div>
               <div class="form-group">
                 Gender
-                <div class="radio" *ngFor="let gender of genders">
-                  <label for="gender">
+                <div
+                  class="form-check"
+                  *ngFor="let gender of genders; let i = index"
+                >
+                  <label class="form-check-label">
                     <input
                       type="radio"
                       name="gender"
+                      class="form-check-input"
                       value="{{ gender }}"
                       [(ngModel)]="user['gender']"
                       required
@@ -77,16 +81,18 @@
                 </div>
               </div>
               <div class="form-group">
-                <label for="dob">DOB</label>
-                <input
-                  type="date"
-                  id="dateOfBirth"
-                  class="form-control"
-                  name="dob"
-                  [(ngModel)]="user['dob']"
-                  #dob="ngModel"
-                  required
-                />
+                <label for="dob"
+                  >DOB
+                  <input
+                    type="date"
+                    id="dateOfBirth"
+                    class="form-control"
+                    name="dob"
+                    [(ngModel)]="user['dob']"
+                    #dob="ngModel"
+                    required
+                  />
+                </label>
                 <span class="help-block" *ngIf="!dob.valid && dob.touched"
                   >Please Enter dob!</span
                 >
@@ -136,11 +142,11 @@
                   >Hobbies
                   <div class="form-group d-flex">
                     <div *ngFor="let hobby of hobbies">
-                      <label class="mx-2">
+                      <label class="mx-3 form-check-label">
                         <input
                           type="checkbox"
                           id="hobbies"
-                          class="form-control"
+                          class="form-check-input"
                           name="{{ hobby.id }}"
                           [ngModel]="hobby.selected"
                           #hobby="ngModel"
@@ -148,21 +154,72 @@
                         {{ hobby.name }}
                       </label>
                     </div>
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      style="padding: 0px 8px 0px 8px;"
+                      (click)="addHobbies()"
+                    >
+                      +
+                    </button>
                   </div>
                 </label>
+                <div *ngIf="add == 1">
+                  <input
+                    type="text"
+                    name="newHobbie"
+                    ngModel
+                    #newHobby="ngModel"
+                    required
+                  />
+                  <button
+                    [disabled]="!newHobby.valid"
+                    type="button"
+                    class="mx-2 btn btn-success"
+                    (click)="pushHobby(newHobby.value)"
+                  >
+                    add
+                  </button>
+                  <button
+                    type="button"
+                    class="mx-2 btn btn-danger"
+                    (click)="add = 0"
+                  >
+                    cancel
+                  </button>
+                </div>
               </div>
               <div class="form-group">
                 <label for="Phone">Mobile Number</label>
                 <input
+                  class="square-div"
                   type="tel"
-                  name="number"
+                  name="number1"
                   id="number"
-                  class="form-control"
-                  [(ngModel)]="user['phoneNum']"
+                  [(ngModel)]="phoneNum1"
                   #number="ngModel"
                   required
-                  pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-                  placeholder="123-456-7890"
+                  maxlength="3"
+                />
+                <input
+                  class="square-div"
+                  type="tel"
+                  name="number2"
+                  id="number"
+                  [(ngModel)]="phoneNum2"
+                  #number="ngModel"
+                  required
+                  maxlength="3"
+                />
+                <input
+                  class="square-div"
+                  type="tel"
+                  name="number3"
+                  id="number"
+                  [(ngModel)]="phoneNum3"
+                  #number="ngModel"
+                  required
+                  maxlength="4"
                 />
                 <span class="help-block" *ngIf="!number.valid && number.touched"
                   >Number should be in format:-123-456-7890</span
@@ -294,6 +351,7 @@
                 </div>
                 <div>
                   <button
+                    *ngIf="i != 0"
                     style="margin: -4px 0px 0px 8px"
                     type="button"
                     class="btn btn-danger"

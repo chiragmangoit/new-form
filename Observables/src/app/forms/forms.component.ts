@@ -1,109 +1,90 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { IDropdownSettings } from 'ng-multiselect-dropdown';
-import { UserService } from '../user.service';
+import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { NgForm } from "@angular/forms";
+import { ActivatedRoute, Params, Router } from "@angular/router";
+import { IDropdownSettings } from "ng-multiselect-dropdown";
+import { Subscription } from "rxjs";
+import { StaticDataModel } from "../data.model";
+import { UserService } from "../user.service";
 
 @Component({
-  selector: 'app-forms',
-  templateUrl: './forms.component.html',
-  styleUrls: ['./forms.component.css'],
+  selector: "app-forms",
+  templateUrl: "./forms.component.html",
+  styleUrls: ["./forms.component.css"],
 })
-export class FormsComponent implements OnInit {
-  @ViewChild('form') signUpForm: NgForm;
+export class FormsComponent implements OnInit, OnDestroy {
+  @ViewChild("form") signUpForm: NgForm;
   editMode: boolean = false;
-  id: number;
+  id: string;
+  subscription: Subscription;
   dropdownList: string[] = [];
   dropdownSettings: IDropdownSettings = {};
-  genders: string[] = ['male', 'female'];
-  hobbies: any = [
-    {
-      id: 1,
-      name: 'singing',
-      selected: false,
-    },
-    {
-      id: 2,
-      name: 'dancing',
-      selected: false,
-    },
-    {
-      id: 3,
-      name: 'reading',
-      selected: false,
-    },
-  ];
-  profession: string[] = [
-    'Chiropractor',
-    'Dentist',
-    'Optometrist',
-    'Developer',
-    'Tester',
-  ];
-  contact: any = [
-    {
-      id: 1,
-      name: '',
-      number: '',
-    },
-  ];
-  phoneNum1 = '';
-  phoneNum2 = '';
-  phoneNum3 = '';
-
-  user: object = {
-    userid: this.userDataService.userData.length + 1,
-    name: '',
-    email: '',
-    gender: '',
-    dob: '',
-    dp: '',
+  genders: string[];
+  profession: string[];
+  contact: any;
+  phoneNum1 = "";
+  phoneNum2 = "";
+  phoneNum3 = "";
+  hobbies: any = [];
+  add: number;
+  newUserData: {};
+  user: any = {
+    name: "",
+    email: "",
+    gender: "",
+    dob: "",
+    dp: "",
     hobbies: [],
-    phoneNum: '',
+    phoneNum: "",
     qualification: [],
-    profession: '',
-    description: '',
+    profession: "",
+    description: "",
     contacts: [],
   };
-  add: number;
-
+  
   constructor(
     private userDataService: UserService,
+    private staticData: StaticDataModel,
     private router: Router,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.dropdownList = ['MCA', 'BCA', 'B.tech', 'M.tech', 'B.Com'];
-    this.dropdownSettings = {
-      idField: 'item_id',
-      textField: 'item_text',
-      enableCheckAll: false,
-    };
+    this.dropdownList = this.staticData.dropdownList;
+    this.dropdownSettings = this.staticData.dropdownSettings;
+    this.contact = this.staticData.contact;
+    this.profession = this.staticData.profession;
+    this.genders = this.staticData.genders;
+    this.hobbies = this.staticData.hobbies;
     this.route.params.subscribe((params: Params) => {
-      this.id = +params['id'];
-      this.editMode = params['id'] != null;
+      this.id = params["id"];
+      this.editMode = params["id"] != null;
+      this.fetchData();
+    });
+  }
+
+  fetchData() {
+    this.userDataService.getUserData(this.id).subscribe((data) => {
+      this.newUserData = data;
       this.initForm();
     });
   }
 
   initForm() {
     if (this.editMode) {
-      const newUserData = this.userDataService.getUserData(this.id);
-      const selectedHobby: string[] = newUserData['hobbies'];
+      const selectedHobby: string[] = this.newUserData["hobbies"];
       this.fetchSelectedHobby(selectedHobby);
-      this.user['name'] = newUserData['name'];
-      this.user['email'] = newUserData['email'];
-      this.user['gender'] = newUserData['gender'];
-      this.user['dob'] = newUserData['dob'];
-      const phone = newUserData['phoneNum'].split('-');
+      this.user["name"] = this.newUserData["name"];
+      this.user["email"] = this.newUserData["email"];
+      this.user["gender"] = this.newUserData["gender"];
+      this.user["dob"] = this.newUserData["dob"];
+      const phone = this.newUserData["phoneNum"].split("-");
       this.phoneNum1 = phone[0];
       this.phoneNum2 = phone[1];
       this.phoneNum3 = phone[2];
-      this.user['qualification'] = newUserData['qualification'];
-      this.user['profession'] = newUserData['profession'];
-      this.user['description'] = newUserData['description'];
-      this.contact = newUserData['contacts'];
+      this.user["qualification"] = this.newUserData["qualification"];
+      this.user["profession"] = this.newUserData["profession"];
+      this.user["description"] = this.newUserData["description"];
+      this.contact = this.newUserData["contacts"];
     }
   }
 
@@ -121,9 +102,9 @@ export class FormsComponent implements OnInit {
     const hobbyName = [];
     for (let hobby of selectedHobby) {
       for (let staticHobby of this.hobbies) {
-        hobbyName.push(staticHobby['name']);
-        if (hobby == staticHobby['name']) {
-          staticHobby['selected'] = true;
+        hobbyName.push(staticHobby["name"]);
+        if (hobby == staticHobby["name"]) {
+          staticHobby["selected"] = true;
         }
       }
       const uniqueHobbyName = [...new Set(hobbyName)];
@@ -153,25 +134,32 @@ export class FormsComponent implements OnInit {
   onAddContacts() {
     this.contact.push({
       id: this.contact.length + 1,
-      name: '',
-      number: '',
+      name: "",
+      number: "",
     });
   }
 
   onRemoveContacts(index: number) {
     this.contact.splice(index, 1);
   }
+
   onSubmit() {
-    this.user['phoneNum'] =
-      this.phoneNum1 + '-' + this.phoneNum2 + '-' + this.phoneNum3;
-    this.user['hobbies'] = this.getSelectedHobby();
-    this.user['contacts'] = this.contact;
+    this.user["phoneNum"] =
+      this.phoneNum1 + "-" + this.phoneNum2 + "-" + this.phoneNum3;
+    this.user["hobbies"] = this.getSelectedHobby();
+    this.user["contacts"] = this.contact;
     if (!this.editMode) {
-      this.user['userid'] = this.user['userid']++;
       this.userDataService.addData(this.user);
     } else {
-      this.userDataService.updateData(this.id, this.user);
+      this.userDataService.updateData(this.id, this.user).subscribe();
     }
-    this.router.navigate(['/home'], { relativeTo: this.route });
+    this.subscription = this.userDataService.getData().subscribe();
+    this.router.navigate(["/home"], { relativeTo: this.route });
+  }
+
+  ngOnDestroy(): void {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 }

@@ -28,14 +28,14 @@
           <button
             class="btn btn-secondary"
             type="button"
-            routerLink="/reactive-form/edit/{{ i }}"
+            routerLink="/reactive-form/edit/{{ user.id }}"
           >
             Edit
           </button>
           <button
             class="btn btn-danger mx-2"
             type="button"
-            (click)="onDelete(i)"
+            (click)="onDelete(user.id)"
           >
             delete
           </button>

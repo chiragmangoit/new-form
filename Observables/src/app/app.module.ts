@@ -14,6 +14,8 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AddSectionDirective } from './directives/add-section.directive';
 import { HomeEditComponent } from './home/home-edit/home-edit.component';
+import { HttpClientModule } from '@angular/common/http';
+import { StaticDataModel } from './data.model';
 
 
 @NgModule({
@@ -25,7 +27,7 @@ import { HomeEditComponent } from './home/home-edit/home-edit.component';
     ReactiveFormComponent,
     LoginFormComponent,
     AddSectionDirective,
-    HomeEditComponent
+    HomeEditComponent,
   ],
   imports: [
     BrowserModule,
@@ -35,8 +37,9 @@ import { HomeEditComponent } from './home/home-edit/home-edit.component';
     NgMultiSelectDropDownModule.forRoot(),
     MatStepperModule,
     BrowserAnimationsModule,
+    HttpClientModule,
   ],
-  providers: [],
+  providers: [StaticDataModel],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

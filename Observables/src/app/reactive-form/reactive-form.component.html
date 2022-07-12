@@ -2,7 +2,7 @@
   <div class="row">
     <div>
       <h2 style="text-align: center">Reactive Form</h2>
-      <form [formGroup]="regForm" (ngSubmit)="onSubmit()">
+      <form [formGroup]="regForm" *ngIf="regForm" (ngSubmit)="onSubmit()">
         <mat-horizontal-stepper>
           <mat-step label="Step 1">
             <span

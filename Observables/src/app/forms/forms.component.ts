@@ -1,9 +1,9 @@
-import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { IDropdownSettings } from "ng-multiselect-dropdown";
 import { Subscription } from "rxjs";
-import { StaticDataModel } from "../data.model";
+import { StaticDataModel, User } from "../data.model";
 import { UserService } from "../user.service";
 
 @Component({
@@ -11,7 +11,7 @@ import { UserService } from "../user.service";
   templateUrl: "./forms.component.html",
   styleUrls: ["./forms.component.css"],
 })
-export class FormsComponent implements OnInit, OnDestroy {
+export class FormsComponent implements OnInit {
   @ViewChild("form") signUpForm: NgForm;
   editMode: boolean = false;
   id: string;
@@ -26,7 +26,7 @@ export class FormsComponent implements OnInit, OnDestroy {
   phoneNum3 = "";
   hobbies: any = [];
   add: number;
-  newUserData: {};
+  newUserData: User;
   user: any = {
     name: "",
     email: "",
@@ -153,13 +153,9 @@ export class FormsComponent implements OnInit, OnDestroy {
     } else {
       this.userDataService.updateData(this.id, this.user).subscribe();
     }
-    this.subscription = this.userDataService.getData().subscribe();
+    this.userDataService.getData().subscribe();
     this.router.navigate(["/home"], { relativeTo: this.route });
   }
 
-  ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-  }
+
 }

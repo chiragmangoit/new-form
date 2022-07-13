@@ -11,18 +11,22 @@ import { UserService } from "../user.service";
 export class HomeComponent implements OnInit, OnDestroy {
   usersData: User[];
   subscription: Subscription;
+  loading: boolean = true;
   editMode: boolean = false;
   constructor(private userservice: UserService) {}
 
   ngOnInit() {
     this.subscription = this.userservice.getData().subscribe((data) => {
       this.usersData = data;
+      this.loading = false;
     });
   }
   onDelete(userId: string) {
+    this.loading = true;
     this.userservice.deleteData(userId).subscribe(() => {
       this.userservice.getData().subscribe((data) => {
         this.usersData = data;
+        this.loading = false;
       });
     });
   }

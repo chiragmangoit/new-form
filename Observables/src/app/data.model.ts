@@ -14,6 +14,7 @@ export interface User {
 }
 
 export class StaticDataModel {
+  
   genders: string[] = ["male", "female"];
 
   hobbies: any = [

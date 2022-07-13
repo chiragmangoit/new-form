@@ -5,6 +5,7 @@ import { IDropdownSettings } from "ng-multiselect-dropdown";
 import { Subscription } from "rxjs";
 import { StaticDataModel, User } from "../data.model";
 import { UserService } from "../user.service";
+import { LoaderService } from "../services/loader.service";
 
 @Component({
   selector: "app-reactive-form",
@@ -23,7 +24,7 @@ export class ReactiveFormComponent implements OnInit, OnDestroy {
   hobbies: any;
   profession: string[];
   add: number;
-  newUserData:{};
+  newUserData:User;
   user: User = {
     name: "",
     email: "",
@@ -43,7 +44,8 @@ export class ReactiveFormComponent implements OnInit, OnDestroy {
     private staticData:StaticDataModel,
     private router: Router,
     private route: ActivatedRoute,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    public loaderService: LoaderService
   ) {}
 
   ngOnInit(): void {
@@ -261,7 +263,7 @@ export class ReactiveFormComponent implements OnInit, OnDestroy {
 
   addHobbies() {
     this.add = 1;
-    this.regForm.get("userDataTwo.newHobby").setValidators(Validators.required);
+    this.regForm.get("userDataTwo.newHobby")!.setValidators(Validators.required);
     this.cdRef.detectChanges();
   }
 
@@ -272,16 +274,10 @@ export class ReactiveFormComponent implements OnInit, OnDestroy {
       selected: false,
     });
     this.add = 0;
-    this.regForm
-      .get("userDataTwo.newHobby")
-      .removeValidators(Validators.required);
   }
 
   onCancel() {
     this.add = 0;
-    this.regForm
-      .get("userDataTwo.newHobby")
-      .removeValidators(Validators.required);
   }
 
   onSubmit() {

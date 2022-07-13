@@ -9,8 +9,18 @@
     </ul>
   </nav>
 </div>
-
-<div class="row mx-5 my-2">
+<div class="container text-center" style="margin-top:20%;" *ngIf="loading">
+  <div class="spinner-grow text-muted mx-2"></div>
+  <div class="spinner-grow text-primary mx-2"></div>
+  <div class="spinner-grow text-success mx-2"></div>
+  <div class="spinner-grow text-info mx-2"></div>
+  <div class="spinner-grow text-warning mx-2"></div>
+  <div class="spinner-grow text-danger mx-2"></div>
+  <div class="spinner-grow text-secondary mx-2"></div>
+  <div class="spinner-grow text-dark mx-2"></div>
+  <div class="spinner-grow text-light mx-2"></div>
+</div>
+<div class="row mx-5 my-2" *ngIf="!loading">
     <div
       class="card mx-5 my-2"
       style="width: 250px"
@@ -43,39 +53,3 @@
       </div>
     </div>
 </div>
-<!-- <router-outlet></router-outlet> -->
-
-<!-- <div class="container">
-  <table *ngFor="let user of usersData; let i = index">
-    <h3>user{{ i }}</h3>
-    <tr>
-      <th>Id</th>
-      <th>Name</th>
-      <th>Email</th>
-      <th>Gender</th>
-      <th>Action</th>
-    </tr>
-    <tr>
-      <td>{{ user.userid }}</td>
-      <td>{{ user.name }}</td>
-      <td>{{ user.email }}</td>
-      <td>{{ user.gender }}</td>
-      <td>
-        <button
-          class="btn btn-secondary"
-          type="button"
-          routerLink="edit/{{i}}"
-        >
-          Edit
-        </button>
-        <button
-          class="btn btn-danger"
-          type="button"
-          (click)="onDelete(i)"
-        >
-          delete
-        </button>
-      </td>
-    </tr>
-  </table>
-</div> -->

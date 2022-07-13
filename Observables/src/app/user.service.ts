@@ -23,21 +23,21 @@ export class UserService {
               user.push({ ...responseData[key], id: key });
             }
           }
-          return user;
+          return user.reverse();
         })
       );
   }
 
   getUserData(userId: string) {
     return this.http
-      .get(
+      .get<User>(
         "https://getting-started-http-default-rtdb.firebaseio.com/posts/" +
           userId +
           ".json"
       )
       .pipe(
         map((responseData) => {
-          let specificUser: {} = {};
+          let specificUser: User;
           specificUser = responseData;
           return specificUser;
         })
